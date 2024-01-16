@@ -5,12 +5,12 @@ from driver import Driver
 from api import handle_asset
 from api import handle_user
 from api import handle_message
-from api import handle_follower
+from api import handle_chat
 
 app = web.Application()
 app.add_routes([
 	web.route('*', "/user", handle_user),
-	web.route('*', "/follower", handle_follower),
+	web.route('*', "/chat", handle_chat),
 	web.route('*', "/message", handle_message),
 	web.route('*', "/asset", handle_asset)
 ])

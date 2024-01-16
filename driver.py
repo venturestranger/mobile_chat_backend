@@ -29,13 +29,16 @@ class Driver:
 		except:
 			pass
 
+		suffix = ""
+		if data.get("union", False):
+			suffix = " OR (" + " AND ".join([f"`{key}`={value}" for key, value in data["id1"].items()]) + ")"
 		if method == "select":
-			return f"SELECT {', '.join(f'`{i}`' for i in data['spec'].split())} FROM {table} WHERE " + " AND ".join([f"`{key}`={value}" for key, value in data["id"].items()])
+			return f"SELECT {', '.join(f'`{i}`' for i in data['spec'].split())} FROM {table} WHERE (" + " AND ".join([f"`{key}`={value}" for key, value in data["id"].items()]) + ") " + suffix
 		elif method == "update":
 			return f"UPDATE {table} SET " + ", ".join([f"`{key}`={value}" for key, value in data["spec"].items()]) + \
-				" WHERE " + " AND ".join([f"`{key}`={value}" for key, value in data["id"].items()])
+				" WHERE (" + " AND ".join([f"`{key}`={value}" for key, value in data["id"].items()]) + ") " + suffix
 		elif method == "delete":
-			return f"DELETE FROM {table} WHERE " + " AND ".join([f"`{key}`={value}" for key, value in data["id"].items()])
+			return f"DELETE FROM {table} WHERE (" + " AND ".join([f"`{key}`={value}" for key, value in data["id"].items()]) + ") " + suffix 
 		elif method == "insert":
 			return f"INSERT INTO {table}(" + ", ".join([f"`{key}`" for key in data["spec"].keys()]) + \
 				") VALUES (" + ", ".join([f"{value}" for value in data["spec"].values()]) + ")"
@@ -50,9 +53,9 @@ class Driver:
 				await cursor.execute(query)
 				rows = await cursor.fetchall()
 
-		ret = {}
+		ret = []
 		for row in rows:
-			ret.update(dict((key, value) for key, value in zip(data["spec"].split(), row)))
+			ret.append(dict((key, value) for key, value in zip(data["spec"].split(), row)))
 		return ret
 
 	@staticmethod

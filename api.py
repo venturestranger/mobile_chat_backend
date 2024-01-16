@@ -1,6 +1,7 @@
 from driver import Driver
 from aiohttp import web
 from config import Config 
+from urllib import parse
 import random 
 import aiofiles
 
@@ -8,7 +9,7 @@ async def handle_asset(request):
 	method = request.method
 
 	try:
-		if method == "GET":
+		if method == "POST":
 			data = await request.json() 
 			filepath = data["file"]
 
@@ -26,7 +27,7 @@ async def handle_asset(request):
 				await response.write_eof()
 				return response
 
-		elif method == "POST":
+		elif method == "PUT":
 			reader = await request.multipart()
 			field = await reader.next()
 
@@ -47,15 +48,15 @@ async def handle_asset(request):
 async def handle_user(request):
 	try:
 		method = request.method
-		data = await request.json() 
+		data = await request.json()
 
-		if method == "GET":
+		if method == "POST":
 			data = await Driver.select(data, "users")
 			return web.json_response(data)
-		elif method == "POST":
+		elif method == "PUT":
 			await Driver.insert(data, "users")
 			return web.Response(status=200)
-		elif method == "PUT":
+		elif method == "PATCH":
 			await Driver.update(data, "users")
 			return web.Response(status=200)
 		elif method == "DELETE":
@@ -66,22 +67,22 @@ async def handle_user(request):
 	except:
 		return web.Response(status=400)
 
-async def handle_follower(request):
+async def handle_chat(request):
 	try:
 		method = request.method
 		data = await request.json() 
 
-		if method == "GET":
-			data = await Driver.select(data, "followers")
+		if method == "POST":
+			data = await Driver.select(data, "chats")
 			return web.json_response(data)
-		elif method == "POST":
-			await Driver.insert(data, "followers")
-			return web.Response(status=200)
 		elif method == "PUT":
-			await Driver.update(data, "followers")
+			await Driver.insert(data, "chats")
+			return web.Response(status=200)
+		elif method == "PATCH":
+			await Driver.update(data, "chats")
 			return web.Response(status=200)
 		elif method == "DELETE":
-			await Driver.delete(data, "followers")
+			await Driver.delete(data, "chats")
 			return web.Response(status=200)
 		else:
 			return web.Response(status=405)
@@ -93,13 +94,13 @@ async def handle_message(request):
 		method = request.method
 		data = await request.json() 
 
-		if method == "GET":
+		if method == "POST":
 			data = await Driver.select(data, "messages")
 			return web.json_response(data)
-		elif method == "POST":
+		elif method == "PUT":
 			await Driver.insert(data, "messages")
 			return web.Response(status=200)
-		elif method == "PUT":
+		elif method == "PATCH":
 			await Driver.update(data, "messages")
 			return web.Response(status=200)
 		elif method == "DELETE":
