@@ -9,11 +9,11 @@ async def handle_asset(request):
 	method = request.method
 
 	try:
-		if method == "POST":
-			data = await request.json() 
+		if method == "GET":
+			data = request.query 
 			filepath = data["file"]
 
-			async with aiofiles.open(filepath, 'rb') as f:
+			async with aiofiles.open(Config.ASSETS + filepath, 'rb') as f:
 				response = web.StreamResponse(status=200, reason='OK')
 				response.content_type = 'application/octet-stream'
 				await response.prepare(request)
@@ -32,9 +32,9 @@ async def handle_asset(request):
 			field = await reader.next()
 
 			alphabet = "qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM"
-			filepath = Config.ASSETS + ''.join(random.choice(alphabet) for i in range(30)) + '.' + field.filename.split('.')[-1]
+			filepath = ''.join(random.choice(alphabet) for i in range(30)) + '.' + field.filename.split('.')[-1]
 
-			async with aiofiles.open(filepath, 'wb') as f:
+			async with aiofiles.open(Config.ASSETS + filepath, 'wb') as f:
 				while True:
 					chunk = await field.read_chunk()
 					if not chunk:
